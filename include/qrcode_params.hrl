@@ -3,9 +3,9 @@
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
 % You may obtain a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
-% 
+%
 % Unless required by applicable law or agreed to in writing, software
 % distributed under the License is distributed on an "AS IS" BASIS,
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,7 @@
 	{?KANJI_MODE, [8, 16, 16]}
 ]).
 
-% Table 5. Alphanumeric charset - see also char/1 
+% Table 5. Alphanumeric charset - see also char/1
 -define(CHARSET, <<"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:">>).
 -define(ALPHANUMERIC_REGEX, <<"[", ?CHARSET/binary, "]+">>).
 -define(NUMERIC_REGEX, <<"[0123456789]+">>).
@@ -60,28 +60,28 @@
 	[7, 23],
 	[7, 27],
 	[7, 31],
-	[7, 35], 
+	[7, 35],
 	[7, 23, 39], % Version 7
-	[7, 25, 43], 
-	[7, 27, 47], 
+	[7, 25, 43],
+	[7, 27, 47],
 	[7, 29, 51],
-	[7, 31, 55], 
-	[7, 33, 59], 
-	[7, 35, 63], 
-	[7, 27, 47, 67], % Version 14 
+	[7, 31, 55],
+	[7, 33, 59],
+	[7, 35, 63],
+	[7, 27, 47, 67], % Version 14
 	[7, 27, 49, 71],
-	[7, 27, 51, 75], 
-	[7, 31, 55, 79], 
-	[7, 31, 57, 83], 
-	[7, 31, 59, 87], 
+	[7, 27, 51, 75],
+	[7, 31, 55, 79],
+	[7, 31, 57, 83],
+	[7, 31, 59, 87],
 	[7, 35, 63, 91],
 	[7, 29, 51, 73, 95], % Version 21
-	[7, 27, 51, 75, 99], 
-	[7, 31, 55, 79, 103], 
-	[7, 29, 55, 81, 107], 
+	[7, 27, 51, 75, 99],
+	[7, 31, 55, 79, 103],
+	[7, 29, 55, 81, 107],
 	[7, 33, 59, 85, 111],
-	[7, 31, 59, 87, 115], 
-	[7, 35, 63, 91, 119], 
+	[7, 31, 59, 87, 115],
+	[7, 35, 63, 91, 119],
 	[7, 27, 51, 75, 99, 123], % Version 28
 	[7, 31, 55, 79, 103, 127],
 	[7, 27, 53, 79, 105, 131],
@@ -261,4 +261,3 @@
 	{{'H',39},{2927,1774,1219,750},[{10,45,15},{67,46,16}],0},
 	{{'H',40},{3057,1852,1273,784},[{20,45,15},{61,46,16}],0}
 ]).
-

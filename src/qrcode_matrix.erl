@@ -3,9 +3,9 @@
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
 % You may obtain a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
-% 
+%
 % Unless required by applicable law or agreed to in writing, software
 % distributed under the License is distributed on an "AS IS" BASIS,
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,7 @@
 
 -module(qrcode_matrix).
 
+-include("qrcode.hrl").
 -include("qrcode_params.hrl").
 
 -export([dimension/1, template/1, embed_data/2, overlay_static/2, finalize/5]).
@@ -21,12 +22,11 @@
 -define(FINDER_BITS, <<6240274796270654599595212063015969838585429452563217548030:192>>).
 
 %%
-dimension(Version) 
-		when Version > 0 
-		andalso Version < 41 ->
+dimension(Version) when Version > 0 andalso Version < 41 ->
 	17 + (Version * 4).
 
 %%
+-spec template(qr_params()) -> list().
 template(#qr_params{version = Version, align_coords = AC}) ->
 	template(Version, AC).
 
@@ -35,7 +35,7 @@ embed_data(#qr_params{version = Version, align_coords = AC, remainder = Rem}, Co
 	FlippedTemplate = flip(template(Version, AC)),
 	FlippedMatrix = embed_data(FlippedTemplate, <<Codewords/binary, 0:Rem>>, []),
 	flip(FlippedMatrix).
-	
+
 %%
 overlay_static(#qr_params{version = Version, align_coords = AC}, Matrix) ->
 	F = finder_bits(),
@@ -55,7 +55,7 @@ finalize(Dim, FMT, VSN, QZ, Matrix) ->
 
 %% Internal
 
-%% 
+%%
 template(Version, AC) ->
 	Dim = dimension(Version),
 	template(1, Dim, AC, []).
@@ -71,61 +71,61 @@ template_row(X, Y, Max, AC, Acc) when X =< Max ->
 	template_row(X + 1, Y, Max, AC, [Ref|Acc]);
 template_row(_, _, _, _, Acc) ->
 	lists:reverse(Acc).
-%	
-template_ref(X, Y, Max, _AC) 
+%
+template_ref(X, Y, Max, _AC)
 		when (X =< 8 andalso Y =< 8)
 		orelse (X =< 8 andalso Y > Max - 8)
 		orelse (X > Max - 8 andalso Y =< 8) ->
 	f;
-template_ref(X, Y, Max, _AC) 
+template_ref(X, Y, Max, _AC)
 		when (X =:= 9 andalso Y =/= 7 andalso (Y =< 9 orelse Max - Y =< 7))
 		orelse (Y =:= 9 andalso X =/= 7 andalso (X =< 9 orelse Max - X =< 7)) ->
 	m;
-template_ref(X, Y, Max, _AC) 
-		when Max >= 45 
-		andalso ((X < 7 andalso Max - Y =< 10) 
+template_ref(X, Y, Max, _AC)
+		when Max >= 45
+		andalso ((X < 7 andalso Max - Y =< 10)
 		orelse (Max - X =< 10 andalso Y < 7)) ->
 	v;
 template_ref(X, Y, Max, AC) ->
 	case is_alignment_bit(X, Y, AC) of
-	true -> 
+	true ->
 		a;
 	false ->
 		template_ref0(X, Y, Max)
 	end.
 %
 template_ref0(X, Y, _)
-		when X =:= 7 
+		when X =:= 7
 		orelse Y =:= 7 ->
 	t;
 template_ref0(_, _, _) ->
 	d.
 
 %%
-is_alignment_bit(X, Y, [{Xa, Ya}|_]) 
-		when (X >= Xa - 2 
-		andalso X =< Xa + 2 
-		andalso Y >= Ya - 2 
+is_alignment_bit(X, Y, [{Xa, Ya}|_])
+		when (X >= Xa - 2
+		andalso X =< Xa + 2
+		andalso Y >= Ya - 2
 		andalso Y =< Ya + 2) ->
 	true;
 is_alignment_bit(X, Y, [_|T]) ->
 	is_alignment_bit(X, Y, T);
 is_alignment_bit(_X, _Y, []) ->
 	false.
-	
+
 % deal with row 7 exceptional case
 embed_data([HA, HB, H, HC, HD|T], Codewords, Acc) when length(T) =:= 4 -> % skip row 7
-	{HA0, HB0, Codewords0} = embed_data(HA, HB, Codewords, [], []),	
-	{HC0, HD0, Codewords1} = embed_data_reversed(HC, HD, Codewords0),	
+	{HA0, HB0, Codewords0} = embed_data(HA, HB, Codewords, [], []),
+	{HC0, HD0, Codewords1} = embed_data_reversed(HC, HD, Codewords0),
 	embed_data(T, Codewords1, [HD0, HC0, H, HB0, HA0|Acc]);
 % normal case
 embed_data([HA, HB, HC, HD|T], Codewords, Acc) ->
-	{HA0, HB0, Codewords0} = embed_data(HA, HB, Codewords, [], []),	
-	{HC0, HD0, Codewords1} = embed_data_reversed(HC, HD, Codewords0),	
+	{HA0, HB0, Codewords0} = embed_data(HA, HB, Codewords, [], []),
+	{HC0, HD0, Codewords1} = embed_data_reversed(HC, HD, Codewords0),
 	embed_data(T, Codewords1, [HD0, HC0, HB0, HA0|Acc]);
 embed_data([], <<>>, Acc) ->
 	lists:reverse(Acc).
-	
+
 embed_data([d|T0], [d|T1], <<A:1, B:1, Codewords/bits>>, StreamA, StreamB) ->
 	embed_data(T0, T1, Codewords, [A|StreamA], [B|StreamB]);
 embed_data([d|T0], [B|T1], <<A:1, Codewords/bits>>, StreamA, StreamB) ->
@@ -136,7 +136,7 @@ embed_data([A|T0], [B|T1], Codewords, StreamA, StreamB) ->
 	embed_data(T0, T1, Codewords, [A|StreamA], [B|StreamB]);
 embed_data([], [], Codewords, StreamA, StreamB) ->
 	{lists:reverse(StreamA), lists:reverse(StreamB), Codewords}.
-	
+
 embed_data_reversed(A, B, Codewords) ->
 	{A0, B0, Codewords0} = embed_data(lists:reverse(A), lists:reverse(B), Codewords, [], []),
 	{lists:reverse(A0), lists:reverse(B0), Codewords0}.
@@ -149,7 +149,7 @@ overlay_static([], <<>>, <<>>, <<>>, Acc) ->
 	lists:reverse(Acc).
 %
 overlay0([f|L], <<F0:1, F/bits>>, T, A, Acc) ->
-	overlay0(L, F, T, A, [F0|Acc]);	
+	overlay0(L, F, T, A, [F0|Acc]);
 overlay0([t|L], F, <<T0:1, T/bits>>, A, Acc) ->
 	overlay0(L, F, T, A, [T0|Acc]);
 overlay0([a|L], F, T, <<A0:1, A/bits>>, Acc) ->
@@ -165,7 +165,7 @@ encode_bits([H|T], QZ, Acc) ->
 	encode_bits(T, QZ, <<Acc0/bits, 0:QZ>>);
 encode_bits([], _, Acc) ->
 	Acc.
-	
+
 encode_bits0([H|T], Acc) when is_integer(H) ->
 	encode_bits0(T, <<Acc/bits, H:1>>);
 encode_bits0([], Acc) ->
@@ -178,7 +178,7 @@ overlay_format([], <<>>, <<>>, Acc) ->
 	lists:reverse(Acc).
 %
 overlay1([m|L], <<M0:1, M/bits>>, V, Acc) ->
-	overlay1(L, M, V, [M0|Acc]);	
+	overlay1(L, M, V, [M0|Acc]);
 overlay1([v|L], M, <<V0:1, V/bits>>, Acc) ->
 	overlay1(L, M, V, [V0|Acc]);
 overlay1([H|L], M, V, Acc) ->
@@ -200,7 +200,7 @@ flip(L, Acc) ->
 %%
 finder_bits() ->
 	?FINDER_BITS.
-%%	
+%%
 alignment_bits(AC) ->
 	Repeats = composite_ac(AC, []),
 	alignment_bits(Repeats, <<>>).
@@ -227,7 +227,7 @@ timing_bits(Version, AC) ->
 	TH = timing_bits(1, Length, [X - 8 - 2 || {X, 7} <- AC], <<>>),
 	TV = timing_bits(1, Length, [Y - 8 - 2 || {7, Y} <- AC], <<>>),
 	<<TH/bits, TV/bits>>.
-%	
+%
 timing_bits(N, Max, A, Acc) when N =< Max ->
 	case lists:member(N, A) of
 	true -> % skip the alignment pattern
@@ -260,4 +260,3 @@ version_bits([<<A:1, B:1, C:1>>|T], RowA, RowB, RowC) ->
 	version_bits(T, <<RowA/bits, A:1>>, <<RowB/bits, B:1>>, <<RowC/bits, C:1>>);
 version_bits([], RowA, RowB, RowC) ->
 	bits:append([RowA, RowB, RowC]).
-

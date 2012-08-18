@@ -3,9 +3,9 @@
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
 % You may obtain a copy of the License at
-% 
+%
 % http://www.apache.org/licenses/LICENSE-2.0
-% 
+%
 % Unless required by applicable law or agreed to in writing, software
 % distributed under the License is distributed on an "AS IS" BASIS,
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@
 
 -define(QRCODE_GF256_PRIME_MODULUS, 285). % 16#011D = 2^8 + 2^4 + 2^3 + 2^2 + 2^0
 
-%%
+-spec encode(binary(), pos_integer()) -> binary().
 encode(Bin, Degree) when Degree > 0 ->
 	Field = gf256:field(?QRCODE_GF256_PRIME_MODULUS),
 	Generator = generator(Field, Degree),
@@ -40,13 +40,13 @@ bch_code(Byte, Poly) ->
 %%
 generator(F, D) when D > 0 ->
 	generator(F, [1], D, 0).
-%	
+%
 generator(_, P, D, D) ->
 	P;
 generator(F, P, D, Count) ->
 	P0 = gf256:polynomial_product(F, P, [1, gf256:exponent(F, Count)]),
 	generator(F, P0, D, Count + 1).
-	
+
 %
 bch_code(Byte, Poly, MSB) ->
 	case msb(Byte) >= MSB of
@@ -66,4 +66,3 @@ msb(0, Count) ->
 	Count;
 msb(Byte, Count) ->
 	msb(Byte bsr 1, Count + 1).
-
